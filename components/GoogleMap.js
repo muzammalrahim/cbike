@@ -3,75 +3,23 @@ import GoogleMapReact from 'google-map-react';
 import { useRouter } from "next/router";
 import en from './locales/en';
 import fr from './locales/fr';
-import { Marker } from 'google-maps-react';
-// import Marker from './Marker';
 import GoogleMapArabic from './GoogleMapArabic';
 import axios from 'axios';
+import CurrentMaker from './CurrentMarker';
+import Markers from './Markers';
 
-// const AnyReactComponent = ({ text }) => <div>{text}</div>;
-
-// const Markers = () => {
-//   return (
-//     <div className="marker"
-//       style={{ backgroundColor: 'red', cursor: 'pointer'}}
-//       title={'My Marker'}
-//     />
-//   );
-// };
-
-// class GoogleMap extends Component {
-//   state = {
-//     zoom: 11,
-//     latitude: "",
-//     longitude: ""
-//   };
-
-//   onMapClicked = (clickEvent) => {
-//     console.log("click event", clickEvent);
-//   }
-
-//   componentDidMount() {
-//     navigator.geolocation.getCurrentPosition((position) => {
-//       // console.log("position", position.coords);
-//       this.setState({ latitude: position.coords.latitude })
-//       this.setState({longitude: position.coords.longitude})
-//     })
-//   }
-
-//   render() {
-//     return (
-//       // Important! Always set the container height explicitly
-//       <div style={{ height: '100vh', width: '100%' }}>
-//         <GoogleMapReact
-//           bootstrapURLKeys={{ key: "AIzaSyCia-ojsGHgn-InxD3nI97yiysWUG2IMZU"}}
-//           defaultCenter={{
-//             lat: this.state.latitude,
-//             lng: this.state.longitude
-//           }}
-//           defaultZoom={this.state.zoom}
-//           onClick={this.onMapClicked}
-//         >
-//           <Marker
-//             lat={this.state.latitude}
-//             lng={this.state.longitude}
-//             // text="My Marker"
-//           />
-//         </GoogleMapReact>
-//       </div>
-//     );
-//   }
-// }
-
-// export default GoogleMap;
-
-const AnyReactComponent = ({ text }) => <div>{text}</div>;
 const GoogleMap = () => {
   const router = useRouter()
   const { locale } = router
   const t = locale === 'en' ? en : fr
   const [longitude, setLongitude] = useState("")
   const [latitude, setLatitude] = useState("")
+
+  const [fetchMapData, setFetchMapData] = useState([])
+
   const onMapClicked = async (clickEvent) => {
+    setLongitude(clickEvent.lng)
+    setLatitude(clickEvent.lat)
     let payload = {
       longitude: clickEvent.lng,
       latitude: clickEvent.lat
@@ -79,11 +27,14 @@ const GoogleMap = () => {
     }
 
     const res = await axios.post("https://3jj2zsfcm6.execute-api.us-east-1.amazonaws.com/dev/api/save-map", payload)
-
-    // setLongitude(res.data)
-    // setLatitude(res.data)
-    // console.log("click event", clickEvent.lng);
   }
+
+  useEffect(() => {
+    axios.get("https://3jj2zsfcm6.execute-api.us-east-1.amazonaws.com/dev/api/getMaps").then((res) => {
+      setFetchMapData(res.data.data)
+    })
+ 
+  }, [])
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -92,16 +43,6 @@ const GoogleMap = () => {
       setLatitude(position.coords.latitude)
     })
   }, [])
-
-
-  const renderMarkers = (map, maps) => {
-    let marker = new maps.Marker({
-      position: { lat: latitude, lng: longitude },
-      map,
-      title: 'Hello World!'
-    });
-    return marker;
-  };
 
   return locale === "en" ? (
     // Important! Always set the container height explicitly
@@ -121,19 +62,22 @@ const GoogleMap = () => {
                   lat: latitude,
                   lng: longitude
                 }}
-                yesIWantToUseGoogleMapApiInternals
-                onGoogleApiLoaded={({ map, maps }) => renderMarkers(map, maps)}
-
-                // defaultCenter={defaultProps.center}
                 zoom={11}
-                // yesIWantToUseGoogleMapApiInternals
                 onClick={onMapClicked}
               >
-                {/* <AnyReactComponent
+                {
+                  fetchMapData.map((m,i) => {
+                    return (
+                      <Markers key={i} lat={m.latitude}
+                      lng={m.longitude}/>
+                    )
+                  })
+                }
+                <CurrentMaker
                   lat={latitude}
                   lng={longitude}
-                  title="my marker"
-                /> */}
+                  text="my marker"
+                />
               </GoogleMapReact>
             </div>
           </div>
