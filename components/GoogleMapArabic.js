@@ -49,12 +49,7 @@ const GoogleMapArabic = () => {
     <div className='container-fluid'>
       <div className=''>
         <div className='row'>
-          <div className='col-md-4 station'>
-            <div className='station__heading'>
-              <h2>{t.googleMap.station}</h2>
-            </div>
-          </div>
-          <div className='col-md-8'>
+        <div className='col-md-8'>
             <div className='map'>
               <GoogleMapReact
                 bootstrapURLKeys={{ key: process.env.GOOGLE_API_KEY }}
@@ -79,6 +74,11 @@ const GoogleMapArabic = () => {
                   text="my marker"
                 />
               </GoogleMapReact>
+            </div>
+          </div>
+          <div className='col-md-4 station'>
+            <div className='station__heading'>
+              <h2>{t.googleMap.station}</h2>
             </div>
           </div>
         </div>
