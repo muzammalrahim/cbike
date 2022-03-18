@@ -20,13 +20,13 @@ const GoogleMap = () => {
   const onMapClicked = async (clickEvent) => {
     setLongitude(clickEvent.lng)
     setLatitude(clickEvent.lat)
-    let payload = {
-      longitude: clickEvent.lng,
-      latitude: clickEvent.lat
+    // let payload = {
+    //   longitude: clickEvent.lng,
+    //   latitude: clickEvent.lat
 
-    }
+    // }
 
-    const res = await axios.post("https://3jj2zsfcm6.execute-api.us-east-1.amazonaws.com/dev/api/save-map", payload)
+    // const res = await axios.post("https://3jj2zsfcm6.execute-api.us-east-1.amazonaws.com/dev/api/save-map", payload)
   }
 
   useEffect(() => {

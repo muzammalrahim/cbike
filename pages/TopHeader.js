@@ -9,10 +9,14 @@ import TopHeaderLeft from "./TopHeaderLeft";
 const TopHeader = () => {
 
   const router = useRouter()
-
+  const [categories, setCategories] = useState([]);
   const { locale } = router
   const t = locale === 'en' ? en : ar
   const [userLogin, setUserLogin] = React.useState(t.navbar.register);
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
 
   const logout = async () => {
 
@@ -31,7 +35,6 @@ const TopHeader = () => {
     router.push('/', '/', { locale })
   }
 
-
   React.useEffect(() => {
     // Perform localStorage action
     const token = localStorage.getItem('loginToken')
@@ -41,6 +44,16 @@ const TopHeader = () => {
       setUserLogin(loginName);
     }
   }, [userLogin])
+
+  const loadCategories = async () => {
+    try {
+      const res = await axios.get(`https://3jj2zsfcm6.execute-api.us-east-1.amazonaws.com/dev/api/getCategory`)
+      console.log("res", res.data.data);
+      setCategories(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return locale === "en" ? <nav className="navbar navbar-expand-lg navbar-light">
     <a className="navbar-brand" href="#">
@@ -62,15 +75,24 @@ const TopHeader = () => {
             {t.navbar.discover}
           </a>
           <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-            <Link href="/Blog">
+            {
+              categories.map((category, i) => {
+                return (
+                  <Link key={i} href={`/blog/${category._id}`}>
+                    <a className="dropdown-item" href="#">{category.name}</a>
+                  </Link>
+                )
+              })
+            }
+            {/* <Link href="/Blog">
               <a className="dropdown-item" href="#">{t.navbar.subDiscover}</a>
-            </Link>
-            <Link href="/Event">
+            </Link> */}
+            {/* <Link href="/Event">
               <a className="dropdown-item" href="#">{t.navbar.events}</a>
             </Link>
             <Link href="/News">
               <a className="dropdown-item" href="#">{t.navbar.news}</a>
-            </Link>
+            </Link> */}
           </div>
         </li>
         <li className="nav-item dropdown">
