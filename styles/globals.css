@@ -316,3 +316,14 @@ a {
   border-radius: 50%;
 }
 /* Marker css ends */
+
+/* info window css starts */
+.info__window p {
+  font-size: 18px;
+  font-size: bold;
+}
+
+/* .info__window h5 {
+  margin-top: 50px;
+} */
+/* info window css ends */

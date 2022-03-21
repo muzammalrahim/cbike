@@ -1,5 +1,6 @@
 import React, { Component, useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
+import { Map, GoogleApiWrapper, Marker, InfoWindow } from "google-maps-react";
 import { useRouter } from "next/router";
 import en from './locales/en';
 import fr from './locales/fr';
@@ -16,6 +17,9 @@ const GoogleMapArabic = () => {
   const [latitude, setLatitude] = useState("")
 
   const [fetchMapData, setFetchMapData] = useState([])
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [activeMarker, setActiveMarker] = useState(null);
+  const [showInfoWindow, setInfoWindowFlag] = useState(true);
 
   const onMapClicked = async (clickEvent) => {
     setLongitude(clickEvent.lng)
@@ -49,10 +53,16 @@ const GoogleMapArabic = () => {
     <div className='container-fluid'>
       <div className=''>
         <div className='row'>
+          <div className='col-md-4 station'>
+            <div className='station__heading'>
+              <h2>{t.googleMap.station}</h2>
+            </div>
+          </div>
           <div className='col-md-8'>
             <div className='map'>
-              <GoogleMapReact
-                bootstrapURLKeys={{ key: process.env.GOOGLE_API_KEY }}
+              <Map
+                google={google}
+                // bootstrapURLKeys={{ key: process.env.GOOGLE_API_KEY }}
                 center={{
                   lat: latitude,
                   lng: longitude
@@ -63,22 +73,45 @@ const GoogleMapArabic = () => {
                 {
                   fetchMapData.map((m, i) => {
                     return (
-                      <Markers key={i} lat={m.latitude}
-                        lng={m.longitude} />
+                      <Marker
+                        key={i}
+                        position={{
+                          lat: m.latitude,
+                          lng: m.longitude
+                        }}
+                        onClick={(props, marker) => {
+                          setSelectedElement(m);
+                          setActiveMarker(marker);
+                        }}
+                      // lat={m.latitude}
+                      // lng={m.longitude}
+                      />
                     )
                   })
                 }
-                <CurrentMaker
+                {selectedElement ? (
+                  <InfoWindow
+                    visible={showInfoWindow}
+                    marker={activeMarker}
+                    onCloseClick={() => {
+                      setSelectedElement(null);
+                    }}
+                  >
+                    <div className='info__window'>
+                      <h5>{selectedElement.station_name}</h5>
+                      <hr />
+                      <h5>{selectedElement.description}</h5>
+                      <h3>Hybrid (Docks and free-floating)</h3>
+                      <p>{selectedElement.num_bike + " bicycles " + " in "} {selectedElement.num_docks + " stations"}</p>
+                    </div>
+                  </InfoWindow>
+                ) : null}
+                {/* <CurrentMaker
                   lat={latitude}
                   lng={longitude}
                   text="my marker"
-                />
-              </GoogleMapReact>
-            </div>
-          </div>
-          <div className='col-md-4 station'>
-            <div className='station__heading'>
-              <h2>{t.googleMap.station}</h2>
+                /> */}
+              </Map>
             </div>
           </div>
         </div>
@@ -87,4 +120,7 @@ const GoogleMapArabic = () => {
     </div>
   ) : <GoogleMap />;
 }
-export default GoogleMapArabic
+export default GoogleApiWrapper({
+  apiKey: process.env.GOOGLE_API_KEY
+})(GoogleMapArabic);
+// export default GoogleMap
